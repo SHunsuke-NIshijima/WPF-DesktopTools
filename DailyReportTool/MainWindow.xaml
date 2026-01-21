@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DailyReportTool"
+        xmlns:validators="clr-namespace:DailyReportTool.Validators"
         xmlns:ui="http://schemas.modernwpf.com/2019"
         ui:WindowHelper.UseModernWindowStyle="True"
         mc:Ignorable="d"
@@ -85,8 +86,15 @@
                                     Binding="{Binding Details}" 
                                     Width="*"/>
                 <DataGridTextColumn Header="Charged" 
-                                    Binding="{Binding Charged}" 
-                                    Width="80"/>
+                                    Width="80">
+                    <DataGridTextColumn.Binding>
+                        <Binding Path="Charged" UpdateSourceTrigger="PropertyChanged">
+                            <Binding.ValidationRules>
+                                <validators:ChargedValueValidationRule />
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </DataGridTextColumn.Binding>
+                </DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
 
