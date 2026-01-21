@@ -88,19 +88,24 @@ public class ReportEntry : INotifyPropertyChanged
         get => _charged;
         set
         {
-            if (value == 0 || value == 1)
+            if (value != 0 && value != 1)
             {
-                _charged = value;
-                OnPropertyChanged(nameof(Charged));
+                throw new ArgumentException("Charged must be 0 or 1", nameof(value));
             }
+            _charged = value;
+            OnPropertyChanged(nameof(Charged));
         }
     }
 
-    public ReportEntry()
+    public ReportEntry() : this(DateTime.Now.ToString("yyyy-MM-dd"))
+    {
+    }
+
+    public ReportEntry(string todayDate)
     {
         _id = 0;
-        _deliveryDate = DateTime.Now.ToString("yyyy-MM-dd");
-        _chargedDate = DateTime.Now.ToString("yyyy-MM-dd");
+        _deliveryDate = todayDate;
+        _chargedDate = todayDate;
         _engagementId = string.Empty;
         _activity = string.Empty;
         _account = string.Empty;

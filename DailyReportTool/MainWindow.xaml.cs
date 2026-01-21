@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -40,21 +41,23 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     {
         InitializeComponent();
         TodayDate = DateTime.Now.ToString("yyyy-MM-dd");
-        ReportEntries = new ObservableCollection<ReportEntry>();
         
-        // Add a sample row to show the format
-        ReportEntries.Add(new ReportEntry { ID = 1 });
+        // Add a sample row to show the format, passing today's date for consistency
+        ReportEntries.Add(new ReportEntry(TodayDate) { ID = 1 });
         
         DataContext = this;
     }
 
     private void CreateEmailButton_Click(object sender, RoutedEventArgs e)
     {
+        Outlook.Application? outlookApp = null;
+        Outlook.MailItem? mailItem = null;
+
         try
         {
             // Create Outlook application instance
-            Outlook.Application outlookApp = new Outlook.Application();
-            Outlook.MailItem mailItem = (Outlook.MailItem)outlookApp.CreateItem(Outlook.OlItemType.olMailItem);
+            outlookApp = new Outlook.Application();
+            mailItem = (Outlook.MailItem)outlookApp.CreateItem(Outlook.OlItemType.olMailItem);
 
             // Set email recipients
             mailItem.To = EmailToTextBox.Text;
@@ -88,6 +91,20 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         catch (Exception ex)
         {
             MessageBox.Show($"Error creating email: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            // Release COM objects to prevent memory leaks
+            if (mailItem != null)
+            {
+                Marshal.ReleaseComObject(mailItem);
+            }
+            if (outlookApp != null)
+            {
+                Marshal.ReleaseComObject(outlookApp);
+            }
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
     }
 
